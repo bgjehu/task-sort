@@ -1,5 +1,5 @@
 const getTasks = function () {
-    return JSON.parse(localStorage.getItem('TASKS'));
+    return JSON.parse(localStorage.getItem('TASKS')) || [];
 }
 
 const selectVectorOption = function (taskId, vectorName, optionValue) {
@@ -37,16 +37,26 @@ const deleteTask = function (taskId) {
 }
 
 const addTask = function () {
-    const task = {
-        id: Math.max(...app.tasks.map(function(task){
+    let unfilledTask = false;
+    for (let task of app.tasks) {
+        if (!task.title) {
+            unfilledTask = true;
+            break;
+        }
+    }
+    if (!unfilledTask) {
+        const ids = app.tasks.map(function(task){
             return task.id
-        })) + 1,
-        title: null
-    };
-    app.config.vectors.forEach(function(vector){
-        task[vector.name] = vector.options[0].name;
-    });
-    app.tasks.push(task);
+        });
+        const task = {
+            id: ids.length === 0 ? 0 : Math.max(...ids) + 1,
+            title: null
+        };
+        app.config.vectors.forEach(function(vector){
+            task[vector.name] = vector.options[0].name;
+        });
+        app.tasks = [task].concat(app.tasks);
+    }
 }
 
 const app = new Vue({

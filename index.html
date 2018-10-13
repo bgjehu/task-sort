@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+
+<head>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+</head>
+
+<style>
+    .card {
+        margin-top: 20px;
+    }
+</style>
+
+<body>
+    <!-- Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+
+    <!-- vuejs -->
+    <script src="https://vuejs.org/js/vue.js"></script>
+
+    <!-- entry point -->
+    <div class="container" id="app">
+        <!-- use [].concat to create deep copy, so that sort is not in place -->
+        <button type="button" class="btn btn-primary btn-lg btn-block" v-on:click="addTask">添加任务</button>
+        <task-item v-for="task in sortedTasks([].concat(tasks))" :key="task.id" :task="task" :vectors="config.vectors"></task-item>
+    </div>
+
+    <!-- component -->
+    <!-- vector-dropdown -->
+    <script>
+        Vue.component('vector-dropdown', {
+            props: ['vector', 'task'],
+            template: '#vector-dropdown',
+        });
+    </script>
+    <script type="text/x-template" id="vector-dropdown">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text" :for="vector.name">{{vector.label}}</label>
+            </div>
+            <select class="custom-select" 
+                v-model="task[vector.name]">
+                <option v-for="option in vector.options" 
+                    :value="option.name"
+                    :selected="task[vector.name]===option.name">
+                        {{option.label}}
+                </option>
+            </select>
+        </div>
+    </script>
+
+    <!-- task-item -->
+    <script>
+        Vue.component('task-item', {
+            props: ['task', 'vectors'],
+            template: '#task-item'
+        });
+    </script>
+    <script type="text/x-template" id="task-item">
+        <div class="card">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">任务</span>
+                </div>
+                <input type="text" class="form-control" placeholder="输入任务" v-model="task.title">
+                <div class="input-group-append">
+                    <span class="input-group-text">{{this.$root.taskScore(task)}}</span>
+                    <button type="button" class="btn btn-outline-danger" v-on:click="$root.deleteTask(task.id)">删除</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <!-- <div class="input-group-prepend">
+                        <span class="input-group-text">细节</span>
+                    </div>
+                    <textarea class="form-control" v-model="task.description"></textarea> -->
+                </div>
+                <div class="row">
+                    <vector-dropdown class="col-sm" 
+                        v-for="vector in vectors" 
+                        :vector="vector" 
+                        :key="vector.name" 
+                        :task="task">
+                    </vector-dropdown>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="index.js"></script>
+</body>
+
+</html>
